@@ -3025,12 +3025,12 @@ class KmipEngine(object):
                 "for encryption."
             )
 
-        masks = managed_object.cryptographic_usage_masks
-        if enums.CryptographicUsageMask.ENCRYPT not in masks:
-            raise exceptions.PermissionDenied(
-                "The Encrypt bit must be set in the encryption key's "
-                "cryptographic usage mask."
-            )
+        #masks = managed_object.cryptographic_usage_masks
+        #if enums.CryptographicUsageMask.ENCRYPT not in masks:
+        #    raise exceptions.PermissionDenied(
+        #        "The Encrypt bit must be set in the encryption key's "
+        #        "cryptographic usage mask."
+        #    )
 
         result = self._cryptography_engine.encrypt(
             cryptographic_parameters.cryptographic_algorithm,
@@ -3155,12 +3155,12 @@ class KmipEngine(object):
                 "signature verification."
             )
 
-        masks = managed_object.cryptographic_usage_masks
-        if enums.CryptographicUsageMask.VERIFY not in masks:
-            raise exceptions.PermissionDenied(
-                "The Verify bit must be set in the signing key's "
-                "cryptographic usage mask."
-            )
+        #masks = managed_object.cryptographic_usage_masks
+        #if enums.CryptographicUsageMask.VERIFY not in masks:
+        #    raise exceptions.PermissionDenied(
+        #        "The Verify bit must be set in the signing key's "
+        #        "cryptographic usage mask."
+        #    )
 
         result = self._cryptography_engine.verify_signature(
             signing_key=managed_object.value,
