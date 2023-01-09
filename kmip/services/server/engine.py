@@ -2944,7 +2944,6 @@ class KmipEngine(object):
                     enums.Operation.SIGNATURE_VERIFY,
                     enums.Operation.MAC
                 ])
-
             if isinstance(self.query_exclude_operations, list):
                 for value in self.query_exclude_operations:
                     operation_names = [member.name for member in enums.Operation]

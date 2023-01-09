@@ -133,7 +133,6 @@ class KmipServer(object):
         self._setup_logging(log_path)
 
         self.config = config.KmipServerConfig()
-
         self._setup_configuration(
             config_path,
             hostname,
@@ -149,11 +148,11 @@ class KmipServer(object):
             database_path,
             query_exclude_operations
         )
-
         self.live_policies = live_policies
         self.policies = {}
 
         self._logger.setLevel(self.config.settings.get('logging_level'))
+
         cipher_suites = self.config.settings.get('tls_cipher_suites')
         if self.config.settings.get('auth_suite') == 'TLS1.2':
             self.auth_suite = auth.TLS12AuthenticationSuite(cipher_suites)
