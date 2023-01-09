@@ -72,7 +72,7 @@ class KmipEngine(object):
         * Cryptographic usage mask enforcement per object type
     """
 
-    def __init__(self, policies=None, database_path=None):
+    def __init__(self, policies=None, database_path=None, query_exclude_operations=None):
         """
         Create a KmipEngine.
 
@@ -87,6 +87,7 @@ class KmipEngine(object):
         self._logger = logging.getLogger('kmip.server.engine')
 
         self._cryptography_engine = engine.CryptographyEngine()
+        self.query_exclude_operations = query_exclude_operations
 
         self.database_path = 'sqlite:///{}'.format(database_path)
         if not database_path:
@@ -2941,6 +2942,13 @@ class KmipEngine(object):
                     enums.Operation.SIGNATURE_VERIFY,
                     enums.Operation.MAC
                 ])
+            if isinstance(self.query_exclude_operations, list):
+                for value in self.query_exclude_operations:
+                    operation_names = [member.name for member in enums.Operation]
+                    if value in operation_names:
+                        operations.remove(enums.Operation[value])
+                    else:
+                        raise exceptions.ConfigurationError("Invalid value {} in query_exclude_operations".format(value))
 
         if enums.QueryFunction.QUERY_OBJECTS in queries:
             objects = list()
