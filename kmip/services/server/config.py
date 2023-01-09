@@ -367,12 +367,12 @@ class KmipServerConfig(object):
             for entry in value:
                 if not isinstance(entry, six.string_types):
                     raise exceptions.ConfigurationError(
-                        "The query excluded operators must be a set of strings "
-                        "representing extra operations that will be allowed."
+                        "The query excluded operations must be a set of strings "
+                        "representing existing operations that will not be allowed."
                     )
             self.settings['query_exclude_operations'] = list(set(value))
         else:
             raise exceptions.ConfigurationError(
-                "The query excluded operators must be a set of strings "
-                "representing extra operations that will be allowed."
+                "The query excluded operations must be a set of strings "
+                "representing existing operations that will not be allowed."
             )

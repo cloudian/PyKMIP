@@ -43,7 +43,6 @@ from kmip.pie import factory
 from kmip.pie import objects
 from kmip.pie import sqltypes
 
-from kmip.services.server import config
 from kmip.services.server import policy
 from kmip.services.server.crypto import engine
 
@@ -88,7 +87,6 @@ class KmipEngine(object):
         self._logger = logging.getLogger('kmip.server.engine')
 
         self._cryptography_engine = engine.CryptographyEngine()
-        self.config = config.KmipServerConfig()
         self.query_exclude_operations = query_exclude_operations
 
         self.database_path = 'sqlite:///{}'.format(database_path)
@@ -2950,7 +2948,7 @@ class KmipEngine(object):
                     if value in operation_names:
                         operations.remove(enums.Operation[value])
                     else:
-                        raise exceptions.ConfigurationError("The excluded operations must be valid")
+                        raise exceptions.ConfigurationError("Invalid value {} in query_exclude_operations".format(value))
 
         if enums.QueryFunction.QUERY_OBJECTS in queries:
             objects = list()
