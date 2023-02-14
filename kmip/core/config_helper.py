@@ -36,7 +36,7 @@ class ConfigHelper(object):
         FILE_PATH, '../demos/certs/server.crt'))
     DEFAULT_KEYFILE = os.path.normpath(os.path.join(
         FILE_PATH, '../demos/certs/server.key'))
-    DEFAULT_CA_CERTS = os.path.normpath('/etc/ssl/certs/ca-bundle.crt')
+    DEFAULT_CA_CERTS = None
     DEFAULT_SSL_VERSION = 'PROTOCOL_SSLv23'
     DEFAULT_USERNAME = None
     DEFAULT_PASSWORD = None
