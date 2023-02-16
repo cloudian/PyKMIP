@@ -1960,6 +1960,14 @@ class KmipEngine(object):
             )
 
         if payload.template_attribute:
+            object_attributes = self._process_template_attribute(payload.template_attribute)
+            if object_attributes.get('Struct'):
+                raise exceptions.InvalidField(
+                    "Template attribute is not supported."
+                )
+
+
+        if payload.template_attribute:
             raise exceptions.InvalidField(
                 "Template attribute is not supported."
             )
