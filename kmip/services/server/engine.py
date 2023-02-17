@@ -1960,9 +1960,10 @@ class KmipEngine(object):
             )
 
         if payload.template_attribute:
-            raise exceptions.InvalidField(
-                "Template attribute is not supported."
-            )
+            if self._process_template_attribute(payload.template_attribute):
+                raise exceptions.InvalidField(
+                    "Template attribute is not supported."
+                )
 
         existing_managed_object = self._get_object_with_access_controls(
             unique_identifier,
