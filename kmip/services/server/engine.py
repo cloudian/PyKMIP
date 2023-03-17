@@ -431,6 +431,8 @@ class KmipEngine(object):
                 if batch_handling == enums.BatchErrorContinuationOption.STOP:
                     break
 
+        self._data_session.close()
+
         return response_batch
 
     def _get_object_type(self, unique_identifier):
