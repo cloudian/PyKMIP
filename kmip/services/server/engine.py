@@ -3041,6 +3041,13 @@ class KmipEngine(object):
                 "cryptographic usage mask."
             )
 
+        if cryptographic_parameters.block_cipher_mode is enums.BlockCipherMode.NIST_KEY_WRAP:
+            if enums.CryptographicUsageMask.WRAP_KEY not in masks:
+                raise exceptions.PermissionDenied(
+                    "The WrapKey bit must be set in the encryption key's "
+                    "cryptographic usage mask."
+                )
+
         result = self._cryptography_engine.encrypt(
             cryptographic_parameters.cryptographic_algorithm,
             managed_object.value,
@@ -3106,6 +3113,13 @@ class KmipEngine(object):
                 "The Decrypt bit must be set in the decryption key's "
                 "cryptographic usage mask."
             )
+
+        if cryptographic_parameters.block_cipher_mode is enums.BlockCipherMode.NIST_KEY_WRAP:
+            if enums.CryptographicUsageMask.UNWRAP_KEY not in masks:
+                raise exceptions.PermissionDenied(
+                    "The UnwrapKey bit must be set in the encryption key's "
+                    "cryptographic usage mask."
+                )
 
         result = self._cryptography_engine.decrypt(
             cryptographic_parameters.cryptographic_algorithm,

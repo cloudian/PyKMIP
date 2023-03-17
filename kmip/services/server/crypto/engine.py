@@ -364,6 +364,18 @@ class CryptographyEngine(api.CryptographicEngine):
             >>> result.iv_counter_nonce
             b'8qA\x05\xc4\x86\x03\xd9=\xef\xdf\xb8ke\x9a\xa2'
         """
+
+        if cipher_mode is enums.BlockCipherMode.NIST_KEY_WRAP:
+            try:
+                wrapped_key = keywrap.aes_key_wrap(
+                    encryption_key,
+                    plain_text,
+                    default_backend()
+                )
+                return {'cipher_text': wrapped_key}
+            except Exception as e:
+                raise exceptions.CryptographicFailure(str(e))
+
         if encryption_algorithm is None:
             raise exceptions.InvalidField("Encryption algorithm is required.")
 
@@ -716,6 +728,18 @@ class CryptographyEngine(api.CryptographicEngine):
             >>> result
             b'\x00\x01\x02\x03\x04\x05\x06\x07\x08\t\n\x0b\x0c\r\x0e\x0f'
         """
+
+        if cipher_mode is enums.BlockCipherMode.NIST_KEY_WRAP:
+            try:
+                plain_text = keywrap.aes_key_unwrap(
+                    decryption_key,
+                    cipher_text,
+                    default_backend()
+                )
+                return plain_text
+            except Exception as e:
+                raise exceptions.CryptographicFailure(str(e))
+
         if decryption_algorithm is None:
             raise exceptions.InvalidField("Decryption algorithm is required.")
 
