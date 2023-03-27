@@ -3337,6 +3337,8 @@ class TestKmipEngine(testtools.TestCase):
         self.assertEqual('test', symmetric_key.operation_policy_name)
         self.assertIsNotNone(symmetric_key.initial_date)
         self.assertNotEqual(0, symmetric_key.initial_date)
+        self.assertIsNone(symmetric_key.activation_date)
+        self.assertEqual(enums.State.PRE_ACTIVE, symmetric_key.state)
         self.assertEqual(1, len(symmetric_key.app_specific_info))
         self.assertEqual(
             "ssl",
@@ -3350,6 +3352,79 @@ class TestKmipEngine(testtools.TestCase):
         self.assertEqual("Group1", symmetric_key.object_groups[0].object_group)
 
         self.assertEqual(uid, e._id_placeholder)
+
+    def test_create_with_activation_date(self):
+        """
+        Test that a Create request with the Activation Date attribute sets
+        the State to Active.
+        """
+        e = engine.KmipEngine()
+        e._data_store = self.engine
+        e._data_store_session_factory = self.session_factory
+        e._data_session = e._data_store_session_factory()
+        e._logger = mock.MagicMock()
+
+        attribute_factory = factory.AttributeFactory()
+
+        activation_date_value = int(time.time())
+
+        # Build Create request
+        object_type = enums.ObjectType.SYMMETRIC_KEY
+        template_attribute = objects.TemplateAttribute(
+            attributes=[
+                attribute_factory.create_attribute(
+                    enums.AttributeType.NAME,
+                    attributes.Name.create(
+                        'Test Symmetric Key',
+                        enums.NameType.UNINTERPRETED_TEXT_STRING
+                    )
+                ),
+                attribute_factory.create_attribute(
+                    enums.AttributeType.CRYPTOGRAPHIC_ALGORITHM,
+                    enums.CryptographicAlgorithm.AES
+                ),
+                attribute_factory.create_attribute(
+                    enums.AttributeType.CRYPTOGRAPHIC_LENGTH,
+                    256
+                ),
+                attribute_factory.create_attribute(
+                    enums.AttributeType.CRYPTOGRAPHIC_USAGE_MASK,
+                    [
+                        enums.CryptographicUsageMask.ENCRYPT,
+                        enums.CryptographicUsageMask.DECRYPT
+                    ]
+                ),
+                attribute_factory.create_attribute(
+                    enums.AttributeType.ACTIVATION_DATE,
+                    activation_date_value
+                )
+            ]
+        )
+        payload = payloads.CreateRequestPayload(
+            object_type,
+            template_attribute
+        )
+
+        response_payload = e._process_create(payload)
+        e._data_session.commit()
+        e._data_session = e._data_store_session_factory()
+
+        e._logger.info.assert_any_call(
+            "Processing operation: Create"
+        )
+
+        uid = response_payload.unique_identifier
+        self.assertEqual('1', uid)
+
+        # Retrieve the verify the object's activation date and state.
+        symmetric_key = e._data_session.query(
+            pie_objects.SymmetricKey
+        ).filter(
+            pie_objects.ManagedObject.unique_identifier == uid
+        ).one()
+        self.assertIsNotNone(symmetric_key.activation_date)
+        self.assertEqual(activation_date_value, symmetric_key.activation_date)
+        self.assertEqual(enums.State.ACTIVE, symmetric_key.state)
 
     def test_create_unsupported_object_type(self):
         """

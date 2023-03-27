@@ -108,6 +108,7 @@ class ManagedObject(sql.Base):
     )
     sensitive = Column("sensitive", Boolean, default=False)
     initial_date = Column(Integer, default=0)
+    activation_date = Column(Integer, default=None)
     _owner = Column('owner', String(50), default=None)
 
     app_specific_info = sqlalchemy.orm.relationship(
@@ -145,6 +146,7 @@ class ManagedObject(sql.Base):
         self.names = list()
         self.operation_policy_name = None
         self.initial_date = 0
+        self.activation_date = None
         self.sensitive = False
         self._object_type = None
         self._owner = None

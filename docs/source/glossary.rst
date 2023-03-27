@@ -3,6 +3,16 @@ Glossary
 .. glossary::
     :sorted:
 
+    activation_date
+        (int) (1.0) An integer specifying, in seconds since the Epoch, the
+        date and time when a managed object may begin to be used. The time
+        corresponds to the state transition from Pre-Active to Active, which
+        occurs either when the object is created or registered with the key
+        management applicance (if the operation specifies a suitable
+        Activation Date) or when it's activated. Once the state transition
+        from Pre-Active has occurred, this attribute shall not be changed or
+        deleted.
+
     alternative_name_type
         (enum) (1.2) An enumeration specifying the type associated with an
         alternate name value. Used often as part of the alternative name

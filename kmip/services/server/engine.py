@@ -710,7 +710,7 @@ class KmipEngine(object):
         elif attr_name == 'Initial Date':
             return managed_object.initial_date
         elif attr_name == 'Activation Date':
-            return None
+            return managed_object.activation_date
         elif attr_name == 'Process Start Date':
             return None
         elif attr_name == 'Protect Stop Date':
@@ -780,7 +780,11 @@ class KmipEngine(object):
             None - if the attribute value could not be found on the managed
                 object
         """
-        if attribute_name == "Application Specific Information":
+        if attribute_name == "Activation Date":
+            if attribute_value.value == managed_object.activation_date:
+                return 0
+            return None
+        elif attribute_name == "Application Specific Information":
             a = attribute_value
             for count, v in enumerate(managed_object.app_specific_info):
                 if ((a.application_namespace == v.application_namespace) and
@@ -908,7 +912,9 @@ class KmipEngine(object):
             field = None
             value = attribute_value.value
 
-            if attribute_name == 'Cryptographic Algorithm':
+            if attribute_name == 'Activation Date':
+                field = 'activation_date'
+            elif attribute_name == 'Cryptographic Algorithm':
                 field = 'cryptographic_algorithm'
             elif attribute_name == 'Cryptographic Length':
                 field = 'cryptographic_length'
@@ -1401,6 +1407,9 @@ class KmipEngine(object):
         # TODO (peterhamilton) Set additional server-only attributes.
         managed_object._owner = self._client_identity[0]
         managed_object.initial_date = int(time.time())
+
+        if managed_object.activation_date and managed_object.activation_date <= managed_object.initial_date:
+            managed_object.state = enums.State.ACTIVE
 
         self._data_session.add(managed_object)
 

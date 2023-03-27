@@ -906,6 +906,7 @@ enforced by the server.
 Various KMIP-defined attributes are set when a symmetric key is created.
 These include:
 
+* :term:`activation_date`
 * :term:`cryptographic_algorithm`
 * :term:`cryptographic_length`
 * :term:`cryptographic_usage_mask`
@@ -942,6 +943,7 @@ Various KMIP-defined attributes are set when an asymmetric key pair is
 created. For both public and private keys, the following attributes are
 identical:
 
+* :term:`activation_date`
 * :term:`cryptographic_algorithm`
 * :term:`cryptographic_length`
 * :term:`initial_date`
@@ -996,6 +998,7 @@ than the requested length, it will be truncated to match the request length.
 Various KMIP-defined attributes are set when a new cryptographic object is
 derived. These include:
 
+* :term:`activation_date`
 * :term:`cryptographic_algorithm`
 * :term:`cryptographic_length`
 * :term:`cryptographic_usage_mask`
@@ -1102,6 +1105,7 @@ The following names should be used to access the corresponding attributes:
 ========================  ================================
 Attribute Name            Attribute
 ========================  ================================
+Activation Date           :term:`activation_date`
 Cryptographic Algorithm   :term:`cryptographic_algorithm`
 Cryptographic Length      :term:`cryptographic_length`
 Cryptographic Usage Mask  :term:`cryptographic_usage_mask`
@@ -1211,6 +1215,7 @@ enforced by the server.
 Various KMIP-defined attributes may be set when an object is registered.
 These may include:
 
+* :term:`activation_date`
 * :term:`cryptographic_algorithm`
 * :term:`cryptographic_length`
 * :term:`cryptographic_usage_mask`
