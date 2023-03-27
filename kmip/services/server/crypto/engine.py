@@ -274,7 +274,7 @@ class CryptographyEngine(api.CryptographicEngine):
                 c = cmac.CMAC(cipher_algorithm(key), backend=default_backend())
                 c.update(data)
                 mac_data = c.finalize()
-            except Exception as e:
+            except Exception:
                 raise exceptions.CryptographicFailure(
                     "An error occurred while computing a CMAC. "
                     "See the server log for more information."
@@ -953,18 +953,18 @@ class CryptographyEngine(api.CryptographicEngine):
                     "decryption.".format(padding_method)
                 )
 
-            backend = default_backend()
-
             try:
-                private_key = backend.load_der_private_key(
+                private_key = serialization.load_der_private_key(
                     decryption_key,
-                    None
+                    password=None,
+                    backend=default_backend()
                 )
             except Exception:
                 try:
-                    private_key = backend.load_pem_private_key(
+                    private_key = serialization.load_pem_private_key(
                         decryption_key,
-                        None
+                        password=None,
+                        backend=default_backend()
                     )
                 except Exception:
                     raise exceptions.CryptographicFailure(
