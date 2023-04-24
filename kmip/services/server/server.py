@@ -62,7 +62,7 @@ class KmipServer(object):
             logging_level=None,
             live_policies=False,
             database_path=None,
-            query_exclude_operations=None
+            disabled_operations=None
     ):
         """
         Create a KmipServer.
@@ -146,7 +146,7 @@ class KmipServer(object):
             tls_cipher_suites,
             logging_level,
             database_path,
-            query_exclude_operations
+            disabled_operations
         )
         self.live_policies = live_policies
         self.policies = {}
@@ -197,7 +197,7 @@ class KmipServer(object):
             tls_cipher_suites=None,
             logging_level=None,
             database_path=None,
-            query_exclude_operations=None
+            disabled_operations=None
     ):
         if path:
             self.config.load_settings(path)
@@ -230,10 +230,10 @@ class KmipServer(object):
             self.config.set_setting('logging_level', logging_level)
         if database_path:
             self.config.set_setting('database_path', database_path)
-        if query_exclude_operations:
+        if disabled_operations:
             self.config.set_setting(
-                'query_exclude_operations',
-                query_exclude_operations.split(',')
+                'disabled_operations',
+                disabled_operations.split(',')
             )
 
     def start(self):
@@ -270,7 +270,7 @@ class KmipServer(object):
         self._engine = engine.KmipEngine(
             policies=self.policies,
             database_path=self.config.settings.get('database_path'),
-            query_exclude_operations=self.config.settings.get('query_exclude_operations')
+            disabled_operations=self.config.settings.get('disabled_operations')
         )
 
         self._logger.info("Starting server socket handler.")
