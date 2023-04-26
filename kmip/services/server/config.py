@@ -53,7 +53,7 @@ class KmipServerConfig(object):
             'tls_cipher_suites',
             'logging_level',
             'database_path',
-            'query_exclude_operations'
+            'disabled_operations'
         ]
 
     def set_setting(self, setting, value):
@@ -97,8 +97,8 @@ class KmipServerConfig(object):
             self._set_tls_cipher_suites(value)
         elif setting == 'logging_level':
             self._set_logging_level(value)
-        elif setting == 'query_exclude_operations':
-            self._set_query_exclude_operations(value)
+        elif setting == 'disabled_operations':
+            self._set_disabled_operations(value)
         else:
             self._set_database_path(value)
 
@@ -185,9 +185,9 @@ class KmipServerConfig(object):
             self._set_logging_level(
                 parser.get('server', 'logging_level')
             )
-        if parser.has_option('server', 'query_exclude_operations'):
-            self._set_query_exclude_operations(
-                parser.get('server', 'query_exclude_operations')
+        if parser.has_option('server', 'disabled_operations'):
+            self._set_disabled_operations(
+                parser.get('server', 'disabled_operations')
             )
         if parser.has_option('server', 'database_path'):
             self._set_database_path(parser.get('server', 'database_path'))
@@ -357,9 +357,9 @@ class KmipServerConfig(object):
                 "The database path, if specified, must be a valid path to a "
                 "SQLite database file."
             )
-    def _set_query_exclude_operations(self, value):
+    def _set_disabled_operations(self, value):
         if not value:
-            self.settings['query_exclude_operations'] = None
+            self.settings['disabled_operations'] = None
             return
         if isinstance(value, six.string_types):
             value = value.split()
@@ -370,7 +370,7 @@ class KmipServerConfig(object):
                         "The query excluded operations must be a set of strings "
                         "representing existing operations that will not be allowed."
                     )
-            self.settings['query_exclude_operations'] = list(set(value))
+            self.settings['disabled_operations'] = list(set(value))
         else:
             raise exceptions.ConfigurationError(
                 "The query excluded operations must be a set of strings "
