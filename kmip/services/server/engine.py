@@ -1288,66 +1288,65 @@ class KmipEngine(object):
     def _process_operation(self, operation, payload):
         # TODO (peterhamilton) Alphabetize this.
         if operation.name in self.disabled_operations:
-            self._logger.info("{0} has been disabled as an operation in the server configs.".format(
+            self._logger.info("{0} has been disabled in the server configs.".format(
                     operation.name.title()
                 )
             )
             raise exceptions.IllegalOperation(
-                "{0} has been disabled as an operation in the server configs.".format(
+                "{0} has been disabled in the PyKMIP server configs.".format(
                     operation.name.title()
                 )
             )
+        if operation == enums.Operation.CREATE:
+            return self._process_create(payload)
+        elif operation == enums.Operation.CREATE_KEY_PAIR:
+            return self._process_create_key_pair(payload)
+        elif operation == enums.Operation.DELETE_ATTRIBUTE:
+            return self._process_delete_attribute(payload)
+        elif operation == enums.Operation.REGISTER:
+            return self._process_register(payload)
+        elif operation == enums.Operation.REKEY:
+            return self._process_rekey(payload)
+        elif operation == enums.Operation.DERIVE_KEY:
+            return self._process_derive_key(payload)
+        elif operation == enums.Operation.LOCATE:
+            return self._process_locate(payload)
+        elif operation == enums.Operation.GET:
+            return self._process_get(payload)
+        elif operation == enums.Operation.GET_ATTRIBUTES:
+            return self._process_get_attributes(payload)
+        elif operation == enums.Operation.GET_ATTRIBUTE_LIST:
+            return self._process_get_attribute_list(payload)
+        elif operation == enums.Operation.ACTIVATE:
+            return self._process_activate(payload)
+        elif operation == enums.Operation.REVOKE:
+            return self._process_revoke(payload)
+        elif operation == enums.Operation.DESTROY:
+            return self._process_destroy(payload)
+        elif operation == enums.Operation.QUERY:
+            return self._process_query(payload)
+        elif operation == enums.Operation.DISCOVER_VERSIONS:
+            return self._process_discover_versions(payload)
+        elif operation == enums.Operation.ENCRYPT:
+            return self._process_encrypt(payload)
+        elif operation == enums.Operation.DECRYPT:
+            return self._process_decrypt(payload)
+        elif operation == enums.Operation.SIGNATURE_VERIFY:
+            return self._process_signature_verify(payload)
+        elif operation == enums.Operation.SET_ATTRIBUTE:
+            return self._process_set_attribute(payload)
+        elif operation == enums.Operation.MODIFY_ATTRIBUTE:
+            return self._process_modify_attribute(payload)
+        elif operation == enums.Operation.MAC:
+            return self._process_mac(payload)
+        elif operation == enums.Operation.SIGN:
+            return self._process_sign(payload)
         else:
-            if operation == enums.Operation.CREATE:
-                return self._process_create(payload)
-            elif operation == enums.Operation.CREATE_KEY_PAIR:
-                return self._process_create_key_pair(payload)
-            elif operation == enums.Operation.DELETE_ATTRIBUTE:
-                return self._process_delete_attribute(payload)
-            elif operation == enums.Operation.REGISTER:
-                return self._process_register(payload)
-            elif operation == enums.Operation.REKEY:
-                return self._process_rekey(payload)
-            elif operation == enums.Operation.DERIVE_KEY:
-                return self._process_derive_key(payload)
-            elif operation == enums.Operation.LOCATE:
-                return self._process_locate(payload)
-            elif operation == enums.Operation.GET:
-                return self._process_get(payload)
-            elif operation == enums.Operation.GET_ATTRIBUTES:
-                return self._process_get_attributes(payload)
-            elif operation == enums.Operation.GET_ATTRIBUTE_LIST:
-                return self._process_get_attribute_list(payload)
-            elif operation == enums.Operation.ACTIVATE:
-                return self._process_activate(payload)
-            elif operation == enums.Operation.REVOKE:
-                return self._process_revoke(payload)
-            elif operation == enums.Operation.DESTROY:
-                return self._process_destroy(payload)
-            elif operation == enums.Operation.QUERY:
-                return self._process_query(payload)
-            elif operation == enums.Operation.DISCOVER_VERSIONS:
-                return self._process_discover_versions(payload)
-            elif operation == enums.Operation.ENCRYPT:
-                return self._process_encrypt(payload)
-            elif operation == enums.Operation.DECRYPT:
-                return self._process_decrypt(payload)
-            elif operation == enums.Operation.SIGNATURE_VERIFY:
-                return self._process_signature_verify(payload)
-            elif operation == enums.Operation.SET_ATTRIBUTE:
-                return self._process_set_attribute(payload)
-            elif operation == enums.Operation.MODIFY_ATTRIBUTE:
-                return self._process_modify_attribute(payload)
-            elif operation == enums.Operation.MAC:
-                return self._process_mac(payload)
-            elif operation == enums.Operation.SIGN:
-                return self._process_sign(payload)
-            else:
-                raise exceptions.OperationNotSupported(
-                    "{0} operation is not supported by the server.".format(
-                        operation.name.title()
-                    )
+            raise exceptions.OperationNotSupported(
+                "{0} operation is not supported by the server.".format(
+                    operation.name.title()
                 )
+            )
 
     @_kmip_version_supported('1.0')
     def _process_create(self, payload):
