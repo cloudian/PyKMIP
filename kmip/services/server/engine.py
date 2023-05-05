@@ -1287,7 +1287,7 @@ class KmipEngine(object):
 
     def _process_operation(self, operation, payload):
         # TODO (peterhamilton) Alphabetize this.
-        if operation.name in self.disabled_operations:
+        if self.disabled_operations and operation.name in self.disabled_operations:
             self._logger.info("{0} has been disabled in the server configs.".format(
                     operation.name.title()
                 )
