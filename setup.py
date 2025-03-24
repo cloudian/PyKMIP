@@ -57,7 +57,7 @@ setuptools.setup(
         "six",
         "sqlalchemy"
     ],
-    python_requires=">= 3.8",
+    python_requires=">= 3.6",
     classifiers=[
         "Intended Audience :: Developers",
         "License :: OSI Approved :: Apache Software License",
