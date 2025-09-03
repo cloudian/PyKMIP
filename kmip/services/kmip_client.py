@@ -288,9 +288,9 @@ class KMIPProxy(object):
         context = ssl.SSLContext(self.ssl_version)
         context.load_cert_chain(
             keyfile=self.keyfile,
-            certfile=self.certfile,)
+            certfile=self.certfile)
         context.verify_mode = self.cert_reqs
-        context.load_verify_locations(cadatself.ca_certs)
+        context.load_verify_locations(cadata=self.ca_certs)
         self.socket = context.wrap_socket(
             sock,
             do_handshake_on_connect=self.do_handshake_on_connect,
