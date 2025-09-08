@@ -84,6 +84,7 @@ class EnumType(types.TypeDecorator):
     """
 
     impl = types.Integer
+    cache_ok = False
 
     def __init__(self, cls):
         """
