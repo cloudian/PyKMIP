@@ -18,13 +18,14 @@ import os
 
 from cryptography import exceptions as errors
 from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.decrepit.ciphers import algorithms
 from cryptography.hazmat.primitives import serialization, hashes, hmac, cmac
 from cryptography.hazmat.primitives import padding as symmetric_padding
 from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.primitives.asymmetric import padding as \
     asymmetric_padding
 from cryptography.hazmat.primitives import ciphers, keywrap
-from cryptography.hazmat.primitives.ciphers import algorithms, modes
+from cryptography.hazmat.primitives.ciphers import modes
 from cryptography.hazmat.primitives.kdf import hkdf
 from cryptography.hazmat.primitives.kdf import kbkdf
 from cryptography.hazmat.primitives.kdf import pbkdf2
