@@ -18,7 +18,7 @@ import os
 
 from cryptography import exceptions as errors
 from cryptography.hazmat.backends import default_backend
-from cryptography.hazmat.decrepit.ciphers import new_algorithms
+from cryptography.hazmat.decrepit.ciphers import algorithms as new_algorithms
 from cryptography.hazmat.primitives import serialization, hashes, hmac, cmac
 from cryptography.hazmat.primitives import padding as symmetric_padding
 from cryptography.hazmat.primitives.asymmetric import rsa
