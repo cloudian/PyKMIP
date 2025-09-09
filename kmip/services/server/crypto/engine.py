@@ -18,6 +18,7 @@ import os
 
 from cryptography import exceptions as errors
 from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.decrepit.ciphers import algorithms as new_algorithms
 from cryptography.hazmat.primitives import serialization, hashes, hmac, cmac
 from cryptography.hazmat.primitives import padding as symmetric_padding
 from cryptography.hazmat.primitives.asymmetric import rsa
@@ -49,13 +50,13 @@ class CryptographyEngine(api.CryptographicEngine):
         # The IDEA algorithm is supported by cryptography but may not be
         # supported by certain backends, like OpenSSL.
         self._symmetric_key_algorithms = {
-            enums.CryptographicAlgorithm.TRIPLE_DES: algorithms.TripleDES,
+            enums.CryptographicAlgorithm.TRIPLE_DES: new_algorithms.TripleDES,
             enums.CryptographicAlgorithm.AES:        algorithms.AES,
-            enums.CryptographicAlgorithm.BLOWFISH:   algorithms.Blowfish,
+            enums.CryptographicAlgorithm.BLOWFISH:   new_algorithms.Blowfish,
             enums.CryptographicAlgorithm.CAMELLIA:   algorithms.Camellia,
-            enums.CryptographicAlgorithm.CAST5:      algorithms.CAST5,
-            enums.CryptographicAlgorithm.IDEA:       algorithms.IDEA,
-            enums.CryptographicAlgorithm.RC4:        algorithms.ARC4
+            enums.CryptographicAlgorithm.CAST5:      new_algorithms.CAST5,
+            enums.CryptographicAlgorithm.IDEA:       new_algorithms.IDEA,
+            enums.CryptographicAlgorithm.RC4:        new_algorithms.ARC4
         }
         self._asymmetric_key_algorithms = {
             enums.CryptographicAlgorithm.RSA: self._create_rsa_key_pair
