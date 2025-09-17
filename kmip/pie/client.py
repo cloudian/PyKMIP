@@ -60,7 +60,6 @@ class ProxyKmipClient(object):
                  cert=None,
                  key=None,
                  ca=None,
-                 ssl_version=None,
                  username=None,
                  password=None,
                  config='client',
@@ -81,9 +80,6 @@ class ProxyKmipClient(object):
                 Optional, defaults to None.
             ca (string): The path to the CA certificate used to verify the
                 server's certificate. Optional, defaults to None.
-            ssl_version (string): The name of the ssl version to use for the
-                connection. Example: 'PROTOCOL_SSLv23'. Optional, defaults to
-                None.
             username (string): The username of the KMIP appliance account to
                 use for operations. Optional, defaults to None.
             password (string): The password of the KMIP appliance account to
@@ -112,7 +108,6 @@ class ProxyKmipClient(object):
             certfile=cert,
             keyfile=key,
             ca_certs=ca,
-            ssl_version=ssl_version,
             username=username,
             password=password,
             config=config,
