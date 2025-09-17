@@ -231,4 +231,4 @@ class TLS12AuthenticationSuite(AuthenticationSuite):
                 suites. Optional, defaults to None.
         """
         super(TLS12AuthenticationSuite, self).__init__(cipher_suites)
-        self._protocol = ssl.PROTOCOL_TLS_SERVER
+        self._protocol = ssl.PROTOCOL_TLSv1_2

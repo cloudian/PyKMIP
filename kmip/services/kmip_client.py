@@ -255,8 +255,7 @@ class KMIPProxy(object):
             "KMIPProxy cert_reqs: {0} (CERT_REQUIRED: {1})".format(
                 self.cert_reqs, ssl.CERT_REQUIRED))
         self.logger.debug(
-            "KMIPProxy ssl_version: {0} (PROTOCOL_SSLv23: {1})".format(
-                self.ssl_version, ssl.PROTOCOL_SSLv23))
+            "KMIPProxy ssl_version: {0}".format(self.ssl_version))
         self.logger.debug("KMIPProxy ca_certs: {0}".format(self.ca_certs))
         self.logger.debug("KMIPProxy do_handshake_on_connect: {0}".format(
             self.do_handshake_on_connect))
