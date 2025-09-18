@@ -292,6 +292,7 @@ class KMIPProxy(object):
         context.load_verify_locations(cafile=self.ca_certs)
         self.socket = context.wrap_socket(
             sock,
+            server_hostname=self.host,
             do_handshake_on_connect=self.do_handshake_on_connect,
             suppress_ragged_eofs=self.suppress_ragged_eofs)
         self.socket.settimeout(self.timeout)
