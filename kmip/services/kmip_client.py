@@ -283,8 +283,6 @@ class KMIPProxy(object):
 
     def _create_socket(self, sock):
         context = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
-        #context.minimum_version = ssl.TLSVersion.TLSv1_2
-        #context.maximum_version = ssl.TLSVersion.TLSv1_3
         context.load_cert_chain(
             keyfile=self.keyfile,
             certfile=self.certfile)
