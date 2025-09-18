@@ -77,7 +77,7 @@ class KMIPProxy(object):
 
     def __init__(self, host=None, port=None, keyfile=None,
                  certfile=None,
-                 cert_reqs=None, ssl_version=None, ca_certs=None,
+                 cert_reqs=None, ca_certs=None,
                  do_handshake_on_connect=None,
                  suppress_ragged_eofs=None,
                  username=None, password=None, timeout=30, config='client',
@@ -109,7 +109,7 @@ class KMIPProxy(object):
                 )
 
         self._set_variables(host, port, keyfile, certfile,
-                            cert_reqs, ssl_version, ca_certs,
+                            cert_reqs, ca_certs,
                             do_handshake_on_connect, suppress_ragged_eofs,
                             username, password, timeout, config_file)
         self.batch_items = []
@@ -254,9 +254,6 @@ class KMIPProxy(object):
         self.logger.debug(
             "KMIPProxy cert_reqs: {0} (CERT_REQUIRED: {1})".format(
                 self.cert_reqs, ssl.CERT_REQUIRED))
-        self.logger.debug(
-            "KMIPProxy ssl_version: {0} (PROTOCOL_SSLv23: {1})".format(
-                self.ssl_version, ssl.PROTOCOL_SSLv23))
         self.logger.debug("KMIPProxy ca_certs: {0}".format(self.ca_certs))
         self.logger.debug("KMIPProxy do_handshake_on_connect: {0}".format(
             self.do_handshake_on_connect))
@@ -285,12 +282,13 @@ class KMIPProxy(object):
             six.reraise(*last_error)
 
     def _create_socket(self, sock):
-        context = ssl.SSLContext(self.ssl_version)
+        context = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
         context.load_cert_chain(
             keyfile=self.keyfile,
             certfile=self.certfile)
         context.verify_mode = self.cert_reqs
         context.load_verify_locations(cafile=self.ca_certs)
+        context.check_hostname = False
         self.socket = context.wrap_socket(
             sock,
             do_handshake_on_connect=self.do_handshake_on_connect,
@@ -1737,7 +1735,7 @@ class KMIPProxy(object):
         return response
 
     def _set_variables(self, host, port, keyfile, certfile,
-                       cert_reqs, ssl_version, ca_certs,
+                       cert_reqs, ca_certs,
                        do_handshake_on_connect, suppress_ragged_eofs,
                        username, password, timeout, config_file):
         conf = ConfigHelper(config_file)
@@ -1761,9 +1759,6 @@ class KMIPProxy(object):
 
         self.cert_reqs = getattr(ssl, conf.get_valid_value(
             cert_reqs, self.config, 'cert_reqs', 'CERT_REQUIRED'))
-
-        self.ssl_version = getattr(ssl, conf.get_valid_value(
-            ssl_version, self.config, 'ssl_version', conf.DEFAULT_SSL_VERSION))
 
         self.ca_certs = conf.get_valid_value(
             ca_certs, self.config, 'ca_certs', conf.DEFAULT_CA_CERTS)

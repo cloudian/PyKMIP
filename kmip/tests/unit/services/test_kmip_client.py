@@ -709,7 +709,6 @@ class TestKMIPClient(TestCase):
             keyfile=None,
             certfile=None,
             cert_reqs=None,
-            ssl_version=None,
             ca_certs=None,
             do_handshake_on_connect=False,
             suppress_ragged_eofs=None,
@@ -729,7 +728,7 @@ class TestKMIPClient(TestCase):
         expected_error = TypeError
 
         kwargs = {'host': host, 'port': None, 'keyfile': None,
-                  'certfile': None, 'cert_reqs': None, 'ssl_version': None,
+                  'certfile': None, 'cert_reqs': None,
                   'ca_certs': None, 'do_handshake_on_connect': False,
                   'suppress_ragged_eofs': None, 'username': None,
                   'password': None, 'timeout': None}
