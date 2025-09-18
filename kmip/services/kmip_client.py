@@ -282,16 +282,15 @@ class KMIPProxy(object):
             six.reraise(*last_error)
 
     def _create_socket(self, sock):
-        context = ssl.create_default_context(purpose=ssl.Purpose.CLIENT_AUTH,
-                                             cafile=self.ca_certs)
-        #context = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
-        context.minimum_version = ssl.TLSVersion.TLSv1_2
-        context.maximum_version = ssl.TLSVersion.TLSv1_3
+        context = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
+        #context.minimum_version = ssl.TLSVersion.TLSv1_2
+        #context.maximum_version = ssl.TLSVersion.TLSv1_3
         context.load_cert_chain(
             keyfile=self.keyfile,
             certfile=self.certfile)
         context.verify_mode = self.cert_reqs
-        #context.load_verify_locations(cafile=self.ca_certs)
+        context.load_verify_locations(cafile=self.ca_certs)
+        context.check_hostname = False
         self.socket = context.wrap_socket(
             sock,
             do_handshake_on_connect=self.do_handshake_on_connect,
