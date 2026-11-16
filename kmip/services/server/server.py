@@ -296,17 +296,24 @@ class KmipServer(object):
         for cipher in auth_suite_ciphers:
             self._logger.debug(cipher)
 
-        self._socket = ssl.wrap_socket(
-            self._socket,
+        # ssl.wrap_socket was removed in Python 3.12; build an SSLContext
+        # instead and use it to wrap the socket, mirroring its behavior.
+        context = ssl.SSLContext(self.auth_suite.protocol)
+        context.load_cert_chain(
             keyfile=self.config.settings.get('key_path'),
-            certfile=self.config.settings.get('certificate_path'),
+            certfile=self.config.settings.get('certificate_path')
+        )
+        context.verify_mode = ssl.CERT_REQUIRED
+        context.load_verify_locations(
+            cafile=self.config.settings.get('ca_path')
+        )
+        context.set_ciphers(self.auth_suite.ciphers)
+
+        self._socket = context.wrap_socket(
+            self._socket,
             server_side=True,
-            cert_reqs=ssl.CERT_REQUIRED,
-            ssl_version=self.auth_suite.protocol,
-            ca_certs=self.config.settings.get('ca_path'),
             do_handshake_on_connect=False,
-            suppress_ragged_eofs=True,
-            ciphers=self.auth_suite.ciphers
+            suppress_ragged_eofs=True
         )
 
         try:

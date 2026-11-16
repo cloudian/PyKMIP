@@ -210,9 +210,11 @@ class TestKmipServer(testtools.TestCase):
         # Test that in ideal cases no errors are generated and the right
         # log messages are.
         with mock.patch('socket.socket') as socket_mock:
-            with mock.patch('ssl.wrap_socket') as ssl_mock:
+            with mock.patch('ssl.SSLContext') as ssl_context_mock:
                 socket_mock.return_value = a_mock
-                ssl_mock.return_value = b_mock
+                context_instance_mock = mock.MagicMock()
+                context_instance_mock.wrap_socket.return_value = b_mock
+                ssl_context_mock.return_value = context_instance_mock
 
                 manager_mock.assert_not_called()
                 monitor_mock.assert_not_called()
@@ -245,7 +247,7 @@ class TestKmipServer(testtools.TestCase):
                     socket.SO_REUSEADDR,
                     1
                 )
-                self.assertTrue(ssl_mock.called)
+                self.assertTrue(context_instance_mock.wrap_socket.called)
                 b_mock.bind.assert_called_once_with(('127.0.0.1', 5696))
                 s._logger.info.assert_called_with(
                     "Server successfully bound socket handler to "
@@ -271,9 +273,11 @@ class TestKmipServer(testtools.TestCase):
 
         # Test that a NetworkingError is generated if the socket bind fails.
         with mock.patch('socket.socket') as socket_mock:
-            with mock.patch('ssl.wrap_socket') as ssl_mock:
+            with mock.patch('ssl.SSLContext') as ssl_context_mock:
                 socket_mock.return_value = a_mock
-                ssl_mock.return_value = b_mock
+                context_instance_mock = mock.MagicMock()
+                context_instance_mock.wrap_socket.return_value = b_mock
+                ssl_context_mock.return_value = context_instance_mock
 
                 test_exception = Exception()
                 b_mock.bind.side_effect = test_exception
