@@ -283,11 +283,17 @@ class KMIPProxy(object):
 
     def _create_socket(self, sock):
         context = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
-        context.load_cert_chain(
-            keyfile=self.keyfile,
-            certfile=self.certfile)
+        # Only load certificate/CA files that are actually configured;
+        # load_cert_chain/load_verify_locations raise TypeError if passed
+        # all-None arguments, whereas the removed ssl.wrap_socket silently
+        # skipped loading in that case.
+        if self.certfile:
+            context.load_cert_chain(
+                certfile=self.certfile,
+                keyfile=self.keyfile)
         context.verify_mode = self.cert_reqs
-        context.load_verify_locations(cafile=self.ca_certs)
+        if self.ca_certs:
+            context.load_verify_locations(cafile=self.ca_certs)
         context.check_hostname = False
         self.socket = context.wrap_socket(
             sock,

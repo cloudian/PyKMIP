@@ -773,6 +773,56 @@ class TestKMIPClient(TestCase):
         self.client._create_socket(sock)
         self.assertEqual(ssl.SSLSocket, type(self.client.socket))
 
+    @mock.patch('ssl.SSLContext')
+    def test_create_socket_without_certfile_or_ca_certs(
+            self, ssl_context_mock):
+        """
+        Test that creating the client socket skips loading certificate/CA
+        files when certfile/keyfile/ca_certs are not configured, matching
+        the conditional behavior of the removed ssl.wrap_socket function
+        (which only loaded files that were actually provided).
+        """
+        context_instance_mock = mock.MagicMock()
+        ssl_context_mock.return_value = context_instance_mock
+
+        self.assertIsNone(self.client.certfile)
+        self.assertIsNone(self.client.keyfile)
+        self.assertIsNone(self.client.ca_certs)
+
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.client._create_socket(sock)
+
+        context_instance_mock.load_cert_chain.assert_not_called()
+        context_instance_mock.load_verify_locations.assert_not_called()
+        self.assertTrue(context_instance_mock.wrap_socket.called)
+
+    @mock.patch('ssl.SSLContext')
+    def test_create_socket_with_certfile_and_ca_certs(
+            self, ssl_context_mock):
+        """
+        Test that creating the client socket loads the configured
+        certificate, key, and CA files.
+        """
+        context_instance_mock = mock.MagicMock()
+        ssl_context_mock.return_value = context_instance_mock
+
+        client = KMIPProxy(
+            config_file="/dev/null",
+            certfile="/path/to/cert.pem",
+            keyfile="/path/to/key.pem",
+            ca_certs="/path/to/ca.pem"
+        )
+
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        client._create_socket(sock)
+
+        context_instance_mock.load_cert_chain.assert_called_once_with(
+            certfile="/path/to/cert.pem",
+            keyfile="/path/to/key.pem"
+        )
+        context_instance_mock.load_verify_locations.\
+            assert_called_once_with(cafile="/path/to/ca.pem")
+
     @mock.patch(
         "kmip.services.kmip_client.KMIPProxy._build_request_message"
     )
