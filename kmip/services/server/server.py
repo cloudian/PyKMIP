@@ -297,17 +297,24 @@ class KmipServer(object):
             self._logger.debug(cipher)
 
         # ssl.wrap_socket was removed in Python 3.12; build an SSLContext
-        # instead and use it to wrap the socket, mirroring its behavior.
+        # instead and use it to wrap the socket, mirroring its behavior,
+        # including only loading certificates/ciphers that are configured.
         context = ssl.SSLContext(self.auth_suite.protocol)
-        context.load_cert_chain(
-            keyfile=self.config.settings.get('key_path'),
-            certfile=self.config.settings.get('certificate_path')
-        )
         context.verify_mode = ssl.CERT_REQUIRED
-        context.load_verify_locations(
-            cafile=self.config.settings.get('ca_path')
-        )
-        context.set_ciphers(self.auth_suite.ciphers)
+
+        certificate_path = self.config.settings.get('certificate_path')
+        if certificate_path:
+            context.load_cert_chain(
+                certfile=certificate_path,
+                keyfile=self.config.settings.get('key_path')
+            )
+
+        ca_path = self.config.settings.get('ca_path')
+        if ca_path:
+            context.load_verify_locations(cafile=ca_path)
+
+        if self.auth_suite.ciphers:
+            context.set_ciphers(self.auth_suite.ciphers)
 
         self._socket = context.wrap_socket(
             self._socket,
