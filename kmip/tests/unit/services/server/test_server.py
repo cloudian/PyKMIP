@@ -22,6 +22,7 @@ except Exception:
 
 import signal
 import socket
+import ssl
 import testtools
 
 from kmip.core import exceptions
@@ -247,7 +248,30 @@ class TestKmipServer(testtools.TestCase):
                     socket.SO_REUSEADDR,
                     1
                 )
-                self.assertTrue(context_instance_mock.wrap_socket.called)
+                # Verify the TLS context is configured correctly, mirroring
+                # the behavior of the removed ssl.wrap_socket call.
+                ssl_context_mock.assert_called_once_with(
+                    s.auth_suite.protocol
+                )
+                context_instance_mock.load_cert_chain.assert_called_once_with(
+                    keyfile=None,
+                    certfile=None
+                )
+                self.assertEqual(
+                    ssl.CERT_REQUIRED,
+                    context_instance_mock.verify_mode
+                )
+                context_instance_mock.load_verify_locations.\
+                    assert_called_once_with(cafile=None)
+                context_instance_mock.set_ciphers.assert_called_once_with(
+                    s.auth_suite.ciphers
+                )
+                context_instance_mock.wrap_socket.assert_called_once_with(
+                    a_mock,
+                    server_side=True,
+                    do_handshake_on_connect=False,
+                    suppress_ragged_eofs=True
+                )
                 b_mock.bind.assert_called_once_with(('127.0.0.1', 5696))
                 s._logger.info.assert_called_with(
                     "Server successfully bound socket handler to "
