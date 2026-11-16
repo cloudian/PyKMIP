@@ -22,6 +22,7 @@ except Exception:
 
 import signal
 import socket
+import ssl
 import testtools
 
 from kmip.core import exceptions
@@ -205,14 +206,23 @@ class TestKmipServer(testtools.TestCase):
         )
         s._logger = mock.MagicMock()
 
+        # Directly set file-backed settings (bypassing the config setters'
+        # existence checks) so the TLS context assertions below can verify
+        # they are passed through correctly.
+        s.config.settings['certificate_path'] = '/etc/pykmip/certs/server.crt'
+        s.config.settings['key_path'] = '/etc/pykmip/certs/server.key'
+        s.config.settings['ca_path'] = '/etc/pykmip/certs/ca.crt'
+
         self.assertFalse(s._is_serving)
 
         # Test that in ideal cases no errors are generated and the right
         # log messages are.
         with mock.patch('socket.socket') as socket_mock:
-            with mock.patch('ssl.wrap_socket') as ssl_mock:
+            with mock.patch('ssl.SSLContext') as ssl_context_mock:
                 socket_mock.return_value = a_mock
-                ssl_mock.return_value = b_mock
+                context_instance_mock = mock.MagicMock()
+                context_instance_mock.wrap_socket.return_value = b_mock
+                ssl_context_mock.return_value = context_instance_mock
 
                 manager_mock.assert_not_called()
                 monitor_mock.assert_not_called()
@@ -245,7 +255,32 @@ class TestKmipServer(testtools.TestCase):
                     socket.SO_REUSEADDR,
                     1
                 )
-                self.assertTrue(ssl_mock.called)
+                # Verify the TLS context is configured correctly, mirroring
+                # the behavior of the removed ssl.wrap_socket call.
+                ssl_context_mock.assert_called_once_with(
+                    s.auth_suite.protocol
+                )
+                context_instance_mock.load_cert_chain.assert_called_once_with(
+                    certfile='/etc/pykmip/certs/server.crt',
+                    keyfile='/etc/pykmip/certs/server.key'
+                )
+                self.assertEqual(
+                    ssl.CERT_REQUIRED,
+                    context_instance_mock.verify_mode
+                )
+                context_instance_mock.load_verify_locations.\
+                    assert_called_once_with(
+                        cafile='/etc/pykmip/certs/ca.crt'
+                    )
+                context_instance_mock.set_ciphers.assert_called_once_with(
+                    s.auth_suite.ciphers
+                )
+                context_instance_mock.wrap_socket.assert_called_once_with(
+                    a_mock,
+                    server_side=True,
+                    do_handshake_on_connect=False,
+                    suppress_ragged_eofs=True
+                )
                 b_mock.bind.assert_called_once_with(('127.0.0.1', 5696))
                 s._logger.info.assert_called_with(
                     "Server successfully bound socket handler to "
@@ -271,9 +306,11 @@ class TestKmipServer(testtools.TestCase):
 
         # Test that a NetworkingError is generated if the socket bind fails.
         with mock.patch('socket.socket') as socket_mock:
-            with mock.patch('ssl.wrap_socket') as ssl_mock:
+            with mock.patch('ssl.SSLContext') as ssl_context_mock:
                 socket_mock.return_value = a_mock
-                ssl_mock.return_value = b_mock
+                context_instance_mock = mock.MagicMock()
+                context_instance_mock.wrap_socket.return_value = b_mock
+                ssl_context_mock.return_value = context_instance_mock
 
                 test_exception = Exception()
                 b_mock.bind.side_effect = test_exception
@@ -300,6 +337,60 @@ class TestKmipServer(testtools.TestCase):
                     "Starting server socket handler."
                 )
                 s._logger.exception.assert_called_once_with(test_exception)
+
+    @mock.patch('multiprocessing.Manager')
+    @mock.patch('kmip.services.server.monitor.PolicyDirectoryMonitor')
+    @mock.patch('kmip.services.server.engine.KmipEngine')
+    @mock.patch('kmip.services.server.server.KmipServer._setup_logging')
+    def test_start_without_certificate_or_ca_paths(self,
+                                                     logging_mock,
+                                                     engine_mock,
+                                                     monitor_mock,
+                                                     manager_mock):
+        """
+        Test that starting the KmipServer skips loading certificate/CA
+        files when certificate_path/key_path/ca_path are not configured,
+        matching the conditional behavior of the removed ssl.wrap_socket
+        function (which only loaded files that were actually provided).
+        """
+        manager_instance_mock = mock.MagicMock()
+        manager_instance_mock.dict.return_value = mock.MagicMock()
+        manager_mock.return_value = manager_instance_mock
+
+        a_mock = mock.MagicMock()
+        b_mock = mock.MagicMock()
+
+        s = server.KmipServer(
+            hostname='127.0.0.1',
+            port=5696,
+            auth_suite='Basic',
+            config_path=None,
+            policy_path=None
+        )
+        s._logger = mock.MagicMock()
+
+        self.assertIsNone(s.config.settings.get('certificate_path'))
+        self.assertIsNone(s.config.settings.get('key_path'))
+        self.assertIsNone(s.config.settings.get('ca_path'))
+
+        with mock.patch('socket.socket') as socket_mock:
+            with mock.patch('ssl.SSLContext') as ssl_context_mock:
+                socket_mock.return_value = a_mock
+                context_instance_mock = mock.MagicMock()
+                context_instance_mock.wrap_socket.return_value = b_mock
+                ssl_context_mock.return_value = context_instance_mock
+
+                # This should not raise, even though no certificate/CA
+                # files are configured.
+                s.start()
+
+                context_instance_mock.load_cert_chain.assert_not_called()
+                context_instance_mock.load_verify_locations.\
+                    assert_not_called()
+                context_instance_mock.set_ciphers.assert_called_once_with(
+                    s.auth_suite.ciphers
+                )
+                self.assertTrue(context_instance_mock.wrap_socket.called)
 
     @mock.patch('kmip.services.server.engine.KmipEngine')
     @mock.patch('kmip.services.server.server.KmipServer._setup_logging')
